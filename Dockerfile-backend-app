@@ -1,0 +1,16 @@
+FROM python:3.7
+
+COPY ./.env .
+COPY /backend-app/requirements /requirements
+
+RUN . /.env \
+    && echo "APP_ENV is ${APP_ENV}" \
+    && apt-get update \
+    && apt-get --yes install python-dev default-libmysqlclient-dev \
+    && pip install --no-cache-dir -r /requirements/base.txt \
+    && pip install --no-cache-dir -r /requirements/${APP_ENV}.txt
+
+EXPOSE "8000"
+
+COPY /backend-app/start.sh .
+CMD ["/start.sh"]

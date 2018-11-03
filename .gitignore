@@ -1,0 +1,14 @@
+# JetBrains project files
+**/.idea
+# vscode project files
+**/.vscode
+
+# env file
+.env
+
+# Python cache
+**/__pycache__
+
+/backend-app/static
+/db/data
+/dbtest/data
