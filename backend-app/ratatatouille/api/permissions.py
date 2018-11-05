@@ -1,8 +1,5 @@
-from rest_framework import permissions
+P_DISH_VIEW = 'view_dish'
 
-class IsOwner(permissions.BasePermission):
-    """
-    Custom permission to only allow owners of an object to access it.
-    """
-    def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user
+P_RESTAURANT_ADD='add_restaurant'
+P_RESTAURANT_VIEW = 'view_restaurant'
+

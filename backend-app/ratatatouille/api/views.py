@@ -1,10 +1,34 @@
 from . import models, serializers
 from django.contrib.auth import authenticate
+from api.permissions import P_DISH_VIEW, P_RESTAURANT_ADD, P_RESTAURANT_VIEW
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+class DishList(APIView):
+    def get(self, request: Request, restaurant: int, format=None):
+        user_id = Token.objects.get(key=request.auth.key).user_id
+        related_restaurants = models.UserRestaurantPermission.objects \
+            .values(
+                'restaurant__id'
+            ) \
+            .get(
+                user__id=user_id,
+                permission__codename=P_DISH_VIEW,
+                restaurant__id=restaurant
+            )
+
+        if 1 != len(related_restaurants):
+            return Response(
+                {'error': 'The user provided is not allowed to perform this operation'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        dishes = models.Dish.objects.filter(restaurant__id=restaurant)
+        serializer = serializers.DishSerializer(dishes, many=True)
+        return Response(serializer.data)
 
 class RestaurantList(APIView):
     """
@@ -19,7 +43,7 @@ class RestaurantList(APIView):
                 'restaurant___updated_at',
                 'restaurant__name'
             )\
-            .filter(user__id=user_id, permission__codename='view_restaurant')
+            .filter(user__id=user_id, permission__codename=P_RESTAURANT_VIEW)
 
         restaurants = []
         for restaurant in related_restaurants:
@@ -34,6 +58,20 @@ class RestaurantList(APIView):
         return Response(serializer.data)
 
     def post(self, request: Request, format=None):
+        user_id = Token.objects.get(key=request.auth.key).user_id
+        user_permission = models.UserRestaurantPermission.objects\
+            .values('permission__id')\
+            .filter(
+                permission__codename=P_RESTAURANT_ADD,
+                user_id=user_id
+            )
+
+        if 1 != len(user_permission):
+            return Response(
+                {'error': 'The user provided is not allowed to perform this operation'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         serializer = serializers.RestaurantSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -44,8 +82,8 @@ class RestaurantList(APIView):
 class UserAuth(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request: Request, format=None):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        username = request.data.get('username')
+        password = request.data.get('password')
         if username is None or password is None:
             return Response(
                 {'error': 'Please provide both username and password'},
