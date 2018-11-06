@@ -14,7 +14,7 @@ class DishList(APIView):
             .values(
                 'restaurant__id'
             ) \
-            .get(
+            .filter(
                 user__id=user_id,
                 permission__codename=P_DISH_VIEW,
                 restaurant__id=restaurant
@@ -47,12 +47,12 @@ class RestaurantList(APIView):
 
         restaurants = []
         for restaurant in related_restaurants:
-            restaurants.extend([models.Restaurant(
+            restaurants.append(models.Restaurant(
                 id=restaurant['restaurant__id'],
                 _created_at=restaurant['restaurant___created_at'],
                 _updated_at=restaurant['restaurant___updated_at'],
                 name=restaurant['restaurant__name']
-            )])
+            ))
 
         serializer = serializers.RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data)

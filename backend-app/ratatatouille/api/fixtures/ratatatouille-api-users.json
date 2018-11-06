@@ -3,13 +3,13 @@
     "model": "auth.User",
     "pk": 1,
     "fields": {
-      "date_joined": "2018-01-01",
+      "date_joined": "2018-01-01T19:24:09Z",
       "email": "super.user@gmail.com",
       "first_name": "super",
       "is_active": true,
       "is_superuser": true,
       "is_staff": true,
-      "last_login": "2018-01-01",
+      "last_login": "2018-01-01T19:24:09Z",
       "last_name": "user",
       "password": "pbkdf2_sha256$120000$I88kO8wvRsjx$P69pEJQbYK0TpUXvRF3PAwhskxIDJEswpEQhV/VnHP0=",
       "username": "super"

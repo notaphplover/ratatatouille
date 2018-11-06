@@ -23,7 +23,9 @@ then
     gunicorn ratatatouille.wsgi --bind ":${BACKEND_PORT_INNER}"
 elif [ "test" = "${APP_ENV}" ]
 then
+    python manage.py loaddata ratatatouille-api-dish-categories.json
     python manage.py loaddata ratatatouille-api-restaurants.json
+    python manage.py loaddata ratatatouille-api-dishes.json
     python manage.py loaddata ratatatouille-api-users.json
     python manage.py loaddata ratatatouille-api-user-permissions.json
     python manage.py test --keepdb
