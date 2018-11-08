@@ -39,25 +39,42 @@ class RestaurantTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.get(username='super')
+        self.super_user = User.objects.get(username='super')
         # Call the API
-        login_response_json = self.client.post(
+        super_response_json = self.client.post(
             '/api/v1/login/',
             {'username':'super', 'password': 'super'}
         ).json()
-        self.token = login_response_json['token']
-        self.token_client = Client(HTTP_AUTHORIZATION='Bearer ' + self.token)
+        self.super_token = super_response_json['token']
+        self.super_client = Client(HTTP_AUTHORIZATION='Bearer ' + self.super_token)
 
-    def testApiGetDishesReturnsDishesOfTheRestaurant(self):
-        user_restaurants = self.alternativeRestaurantSearch(self.user)
+        loser_response_json = self.client.post(
+            '/api/v1/login/',
+            {'username': 'loser', 'password': 'loser'}
+        ).json()
+        self.loser_token = loser_response_json['token']
+        self.loser_client = Client(HTTP_AUTHORIZATION='Bearer ' + self.loser_token)
+
+    def testApiGetDishesDoesNotReturnDishesToNotGrantedUsers(self):
+        user_restaurants = self.alternativeRestaurantSearch(self.super_user)
 
         for restaurant in user_restaurants:
-            dishes_response = self.token_client.get(
+            dishes_response = self.loser_client.get(
+                '/api/v1/dishes/' + str(restaurant.id) + '/'
+            )
+
+            self.assertEqual(status.HTTP_403_FORBIDDEN, dishes_response.status_code)
+
+    def testApiGetDishesReturnsDishesOfTheRestaurant(self):
+        user_restaurants = self.alternativeRestaurantSearch(self.super_user)
+
+        for restaurant in user_restaurants:
+            dishes_response = self.super_client.get(
                 '/api/v1/dishes/' + str(restaurant.id) + '/'
             )
 
             dishes_json = dishes_response.json()
-            alternative_dishes = self.alternativeDishSearch(self.user, restaurant)
+            alternative_dishes = self.alternativeDishSearch(self.super_user, restaurant)
 
             self.assertEqual(status.HTTP_200_OK, dishes_response.status_code)
             self.assertEqual(len(alternative_dishes), len(dishes_json))
@@ -66,12 +83,12 @@ class RestaurantTestCase(TestCase):
                 self.assertTrue(any(dish_json['id'] == o.id for o in alternative_dishes))
 
     def testApiGetRestaurantsReturnsRestaurantsOwnedByTheUser(self):
-        restaurants_response = self.token_client.get(
+        restaurants_response = self.super_client.get(
             '/api/v1/restaurants/'
         )
 
         restaurants_json = restaurants_response.json()
-        alternative_restaurants = self.alternativeRestaurantSearch(self.user)
+        alternative_restaurants = self.alternativeRestaurantSearch(self.super_user)
 
         self.assertEqual(status.HTTP_200_OK, restaurants_response.status_code)
         self.assertEqual(len(alternative_restaurants), len(restaurants_json))

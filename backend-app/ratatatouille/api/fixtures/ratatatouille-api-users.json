@@ -14,5 +14,21 @@
       "password": "pbkdf2_sha256$120000$I88kO8wvRsjx$P69pEJQbYK0TpUXvRF3PAwhskxIDJEswpEQhV/VnHP0=",
       "username": "super"
     }
+  },
+  {
+    "model": "auth.User",
+    "pk": 2,
+    "fields": {
+      "date_joined": "2018-01-01T19:24:09Z",
+      "email": "loser.user@gmail.com",
+      "first_name": "loser",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2018-01-01T19:24:09Z",
+      "last_name": "user",
+      "password": "pbkdf2_sha256$120000$TfqHV35n1BO7$fzjjXbKQJ20Rc8KtK7Sz4kpWStRKYcYjd0KCTVlM9AE=",
+      "username": "loser"
+    }
   }
 ]
